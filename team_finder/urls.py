@@ -1,9 +1,11 @@
 from django.contrib import admin
-from django.shortcuts import redirect
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import include, path
+
+from projects.web_views import ProjectListView
 
 urlpatterns = [
-
+    path('', ProjectListView.as_view(), name='home'),
+    path('admin/', admin.site.urls),
+    path('projects/', include('projects.urls')),
+    path('users/', include('users.urls')),
 ]

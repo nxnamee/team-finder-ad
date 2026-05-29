@@ -1,24 +1,12 @@
-"""HTML URLs for the users application."""
-from django.contrib.auth import views as auth_views
 from django.urls import path
-
-from users.web_views import (
-    EditProfileView,
-    EmailLoginView,
-    RegisterView,
-    UserDetailView,
-    UserListView,
-    UserPasswordChangeView,
-)
-
-app_name = 'users'
+from . import web_views
 
 urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
-    path('login/', EmailLoginView.as_view(), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='projects:project-list'), name='logout'),
-    path('edit-profile/', EditProfileView.as_view(), name='edit-profile'),
-    path('change-password/', UserPasswordChangeView.as_view(), name='change-password'),
-    path('list/', UserListView.as_view(), name='user-list'),
-    path('<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('signup/', web_views.SignupView.as_view(), name='signup'),
+    path('signin/', web_views.SigninView.as_view(), name='signin'),
+    path('signout/', web_views.SignoutView.as_view(), name='signout'),
+    path('password/', web_views.PasswordChangeView.as_view(), name='password-change'),
+    path('profile/<int:pk>/', web_views.AccountDetailView.as_view(), name='profile-detail'),
+    path('profile/edit/', web_views.AccountEditView.as_view(), name='account-edit'),
+    path('members/', web_views.MemberListView.as_view(), name='member-list'),
 ]

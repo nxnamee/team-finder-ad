@@ -1,154 +1,74 @@
-.project-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 20px;
+.pf-wrap-sm {
+  max-width: 900px; margin: 0 auto; padding: 40px 20px;
 }
 
-.project-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
+.pf-card {
+  background: #fff; border: 1px solid #ddd;
+  border-radius: 12px; padding: 24px; margin-bottom: 20px;
 }
 
-.project-card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 12px;
-    justify-content: space-between;
+.pf-card-top {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 12px; justify-content: space-between;
 }
 
-.project-card-header-left {
-    display: flex;
-    gap: 10px;
+.pf-card-top-left { display: flex; gap: 10px; }
+
+.pf-author-pic { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+
+.pf-meta {
+  display: flex; flex-direction: column;
+  justify-content: space-evenly; align-items: flex-start;
+  font-size: 14px; color: #555;
+}
+.pf-author-name { font-weight: 700; }
+
+.pf-heading { font-size: 22px; font-weight: bold; margin: 10px 0; }
+
+.pf-desc { font-size: 15px; color: #444; margin-bottom: 16px; }
+
+.pf-link { margin-bottom: 20px; font-size: 14px; }
+
+.pf-card-body {
+  display: flex; flex-direction: column;
+  align-items: flex-start; justify-content: space-between;
+}
+.pf-card-body-left { margin-bottom: 30px; max-width: 50%; }
+
+.pf-actions {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end;
 }
 
-.project-author-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
+.pf-roster-card {
+  background: #fff; border: 1px solid #ddd;
+  border-radius: 12px; padding: 20px;
+}
+.pf-roster-card h3 { margin: 0; }
+
+.pf-roster {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px;
 }
 
-.project-meta {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: flex-start;
-    font-size: 14px;
-    color: #555;
+.pf-roster-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border: 1px solid #eee;
+  border-radius: 10px; background: #fafafa;
 }
 
-.project-author {
-    font-weight: 700;
+.pf-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+
+.pf-team-info {
+  display: flex; flex-direction: column; font-size: 14px;
 }
 
-.project-title {
-    font-size: 22px;
-    font-weight: bold;
-    margin: 10px 0;
-}
+.pf-team-name { font-weight: 600; }
+.pf-team-role { font-size: 12px; color: #666; }
 
-.project-description {
-    font-size: 15px;
-    color: #444;
-    margin-bottom: 16px;
+.pf-skills-box {
+  background: white; border: 1px solid #ddd;
+  border-radius: 12px; padding: 20px; margin-bottom: 20px;
 }
+.pf-skills-box p { margin: 4px 0 0 0; color: #555; font-size: 14px; }
+.pf-skills-box h3 { margin: 0; }
 
-.project-link {
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.project-card-body {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-stat;
-    justify-content: space-between;
-}
-
-.project-card-body-left {
-    margin-bottom: 30px;
-    max-width: 50%;
-}
-
-.project-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: flex-end
-}
-
-.project-participants-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.project-participants-card h3 {
-    margin: 0;
-}
-
-.participants-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-top: 12px;
-}
-
-.participant-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border: 1px solid #eee;
-    border-radius: 10px;
-    background: #fafafa;
-}
-
-.participant-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.participant-info {
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-}
-
-.participant-name {
-    font-weight: 600;
-}
-
-.participant-role {
-    font-size: 12px;
-    color: #666;
-}
-
-.project-skills {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.project-skills p {
-    margin: 4px 0 0 0;
-    color: #555;
-    font-size: 14px;
-}
-
-.project-skills h3 {
-    margin: 0;
-}
-
-.skills-container {
-    margin-top: 12px;
-}
+.pf-skills { margin-top: 12px; }

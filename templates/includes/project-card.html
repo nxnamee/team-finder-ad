@@ -1,0 +1,28 @@
+{% load static %}
+
+<div class="pf-card">
+  <div class="pf-card-top">
+    <div class="pf-owner">
+      {% if project.author.avatar %}
+      <img src="{{ project.author.avatar.url }}" alt="" class="pf-avatar-sm">
+      {% else %}
+      <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-avatar-sm">
+      {% endif %}
+      <div class="pf-author">
+        <a href="{% url 'profile-detail' project.author.id %}">{{ project.author.username }}</a>
+        <small class="pf-date">{{ project.created_at|date:"M d, Y" }}</small>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="pf-card-title"><a href="{% url 'project-detail' project.id %}">{{ project.title }}</a></h3>
+  <p class="pf-card-desc">{{ project.description|truncatechars:150 }}</p>
+
+  <div class="pf-card-foot">
+    <span class="pf-badge-dark">{{ project.get_status_display }}</span>
+    <div class="pf-count">
+      {% include 'includes/svg/participants.html' %}
+      {{ project.participants.count }}
+    </div>
+  </div>
+</div>

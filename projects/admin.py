@@ -1,10 +1,21 @@
 from django.contrib import admin
-
-from projects.models import Project
+from .models import Project, Membership, Favorite
 
 
 @admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'status', 'pub_date')
-    search_fields = ('title', 'author__username')
-    list_filter = ('status', 'pub_date')
+class ListingAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'status', 'created_at')
+    list_filter = ('status', 'skills')
+    search_fields = ('title', 'description', 'author__username')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('project', 'user', 'role')
+    list_filter = ('role',)
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'project', 'created_at')

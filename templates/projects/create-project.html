@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New Project{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/create-project.css' %}">
+<link rel="stylesheet" href="{% static 'css/skills.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pf-editor">
+  <h2 class="pf-form-title">New Project</h2>
+  <form method="post" class="pf-editor-form">
+    {% csrf_token %}
+    <div class="pf-field">
+      {{ form.title.label_tag }}
+      {{ form.title }}
+    </div>
+    <div class="pf-field">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+    </div>
+    <div class="pf-field">
+      {{ form.status.label_tag }}
+      {{ form.status }}
+    </div>
+    {% if form.errors %}
+    <div class="pf-errors">
+      {% for field, errors in form.errors.items %}
+      {% for error in errors %}
+      <p>{{ error }}</p>
+      {% endfor %}
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="pf-actions">
+      <a href="{% url 'project-list' %}" class="pf-btn-cancel">Cancel</a>
+      <button type="submit" class="pf-btn-save">Publish</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

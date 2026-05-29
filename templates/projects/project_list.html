@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Projects{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/project_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pf-wrap">
+  <div class="pf-bar">
+    <div>
+      <h1 class="pf-heading">Projects</h1>
+      <p class="pf-sub">Find your team and build something great</p>
+    </div>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'project-create' %}" class="pf-btn-dark">+ New Project</a>
+    {% endif %}
+  </div>
+
+  <div class="pf-filter">
+    <span class="pf-filter-label">Filter:</span>
+    <div class="pf-chips">
+      {% for key, label in filters_map.items %}
+      <a href="?filter={{ key }}" class="pf-chip {% if current_filter == key %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+      <a href="." class="pf-reset">reset</a>
+    </div>
+  </div>
+
+  <div class="pf-grid">
+    {% for p in projects %}
+      {% include 'includes/project-card.html' with project=p %}
+    {% empty %}
+      {% include 'includes/empty-project-card.html' %}
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+  <div class="pf-filter" style="margin-top:30px;text-align:center;">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if current_filter != 'all' %}&filter={{ current_filter }}{% endif %}" class="pf-chip">← Prev</a>
+    {% endif %}
+    <span style="margin:0 12px;font-size:14px;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if current_filter != 'all' %}&filter={{ current_filter }}{% endif %}" class="pf-chip">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,17 +1,29 @@
-from django.db import models
+PROJECT_STATUSES = {
+    'active': 'Active',
+    'closed': 'Closed',
+}
 
+PROJECT_FILTERS = {
+    'all': 'All',
+    'my_projects': 'My Projects',
+    'participating': 'Participating',
+    'favorites': 'Favorites',
+}
 
-class ProjectState(models.TextChoices):
-    OPEN = 'open', 'Открыт'
-    CLOSED = 'closed', 'Закрыт'
+PARTICIPANT_ROLES = {
+    'developer': 'Developer',
+    'designer': 'Designer',
+    'tester': 'Tester',
+    'analyst': 'Analyst',
+    'pm': 'PM',
+    'other': 'Other',
+}
 
-
-TITLE_MAX_LENGTH = 200
-STATUS_MAX_LENGTH = 6
-PHONE_MAX_LENGTH = 12
-NAME_MAX_LENGTH = 150
-SURNAME_MAX_LENGTH = 150
-ITEMS_PER_PAGE = 12
-AVATAR_BACKGROUND_COLOR = (100, 149, 237)
-AVATAR_TEXT_COLOR = (255, 255, 255)
-AVATAR_SIZE = 128
+COMMON_SKILLS = [
+    'Python', 'JavaScript', 'TypeScript', 'React', 'Vue',
+    'Angular', 'Node.js', 'Django', 'Flask', 'FastAPI',
+    'PostgreSQL', 'MongoDB', 'Docker', 'Kubernetes',
+    'AWS', 'GCP', 'Azure', 'Git', 'UI/UX Design',
+    'Figma', 'Product Management', 'Data Science',
+    'Machine Learning', 'DevOps', 'Testing',
+]

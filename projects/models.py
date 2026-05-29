@@ -1,65 +1,48 @@
-from django.conf import settings
 from django.db import models
-from django.urls import reverse
+from django.conf import settings
+from team_finder.constants import PROJECT_STATUSES, PARTICIPANT_ROLES
 
-from team_finder.constants import ProjectState, STATUS_MAX_LENGTH, TITLE_MAX_LENGTH
+STATUS_OPTIONS = [(k, v) for k, v in PROJECT_STATUSES.items()]
+ROLE_OPTIONS = [(k, v) for k, v in PARTICIPANT_ROLES.items()]
 
 
 class Project(models.Model):
-
+    title = models.CharField(max_length=200)
+    description = models.TextField()
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='projects',
-        verbose_name='Автор'
-    )
-    title = models.CharField(max_length=TITLE_MAX_LENGTH, verbose_name='Название')
-    description = models.TextField(verbose_name='Описание')
-    status = models.CharField(
-        max_length=STATUS_MAX_LENGTH,
-        choices=ProjectState,
-        default=ProjectState.OPEN,
-        verbose_name='Статус'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True, verbose_name='Дата публикации'
     )
     participants = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        related_name='joined_projects',
-        blank=True,
-        verbose_name='Участники'
+        through='Membership',
+        related_name='participating_projects',
     )
-    favorited_by = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='favorite_projects',
-        blank=True,
-        verbose_name='Добавили в избранное'
-    )
+    status = models.CharField(max_length=20, choices=STATUS_OPTIONS, default='active')
+    skills = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('-pub_date',)
-        verbose_name = 'Проект'
-        verbose_name_plural = 'Проекты'
+        ordering = ['-created_at']
 
-    def __str__(self):
-        return self.title
 
-    def get_absolute_url(self):
-        return reverse('projects:project-detail', kwargs={'pk': self.pk})
+class Membership(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='memberships')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='memberships')
+    role = models.CharField(max_length=20, choices=ROLE_OPTIONS, default='developer')
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    @property
-    def owner(self):
-        return self.author
+    class Meta:
+        unique_together = ('project', 'user')
+        verbose_name_plural = 'memberships'
 
-    @property
-    def name(self):
-        return self.title
 
-    @property
-    def created_at(self):
-        return self.pub_date
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorites')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    @property
-    def github_url(self):
-        return ''
+    class Meta:
+        unique_together = ('user', 'project')

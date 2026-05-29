@@ -1,123 +1,119 @@
-from http import HTTPStatus
-
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
-
-from projects.forms import ProjectForm
-from projects.models import Project
-from team_finder.constants import ITEMS_PER_PAGE, ProjectState
+from django.views import generic
+from django.urls import reverse_lazy
+from .models import Project, Membership, Favorite
+from .forms import ListingForm
+from team_finder.constants import PROJECT_STATUSES, PROJECT_FILTERS, PARTICIPANT_ROLES
 
 
-class ProjectListView(ListView):
-
+class CatalogueView(generic.ListView):
     model = Project
     template_name = 'projects/project_list.html'
     context_object_name = 'projects'
-    paginate_by = ITEMS_PER_PAGE
+    paginate_by = 12
 
     def get_queryset(self):
-        return Project.objects.select_related('author').prefetch_related('participants')
+        q = self.request.GET.get('filter', 'all')
+        u = self.request.user
+        qs = Project.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data['favorite_project_ids'] = set()
-        if self.request.user.is_authenticated:
-            context_data['favorite_project_ids'] = set(
-                self.request.user.favorite_projects.values_list('id', flat=True)
-            )
-        return context_data
+        if q == 'my_projects' and u.is_authenticated:
+            qs = qs.filter(author=u)
+        elif q == 'participating' and u.is_authenticated:
+            qs = qs.filter(memberships__user=u)
+        elif q == 'favorites' and u.is_authenticated:
+            qs = qs.filter(favorited_by__user=u)
+
+        return qs.select_related('author').prefetch_related('memberships').distinct()
+
+    def get_context_data(self, **kw):
+        d = super().get_context_data(**kw)
+        d['filter_options'] = PROJECT_STATUSES
+        d['current_filter'] = self.request.GET.get('filter', 'all')
+        d['filters_map'] = PROJECT_FILTERS
+        return d
 
 
-class FavoriteProjectsView(LoginRequiredMixin, ListView):
-
+class SavedProjectsView(LoginRequiredMixin, generic.ListView):
+    model = Favorite
     template_name = 'projects/favorite_projects.html'
-    context_object_name = 'projects'
-    paginate_by = ITEMS_PER_PAGE
+    context_object_name = 'saved_items'
+    paginate_by = 12
 
     def get_queryset(self):
-        return self.request.user.favorite_projects.select_related('author').distinct()
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data['favorite_project_ids'] = set(
-            self.request.user.favorite_projects.values_list('id', flat=True)
-        )
-        return context_data
+        return Favorite.objects.filter(user=self.request.user).select_related('project__author')
 
 
-class ProjectDetailView(DetailView):
-
+class ListingDetailView(generic.DetailView):
     model = Project
     template_name = 'projects/project-details.html'
+    context_object_name = 'project'
+
+    def get_context_data(self, **kw):
+        d = super().get_context_data(**kw)
+        p = self.object
+        u = self.request.user
+        d['is_author'] = u.is_authenticated and p.author == u
+        d['is_participant'] = u.is_authenticated and p.memberships.filter(user=u).exists()
+        d['is_favorite'] = u.is_authenticated and p.favorited_by.filter(user=u).exists()
+        d['role_options'] = list(PARTICIPANT_ROLES.values())
+        d['statuses'] = PROJECT_STATUSES
+        return d
 
 
-class ProjectCreateView(LoginRequiredMixin, CreateView):
-
+class ListingCreateView(LoginRequiredMixin, generic.CreateView):
     model = Project
-    form_class = ProjectForm
+    form_class = ListingForm
     template_name = 'projects/create-project.html'
+    success_url = reverse_lazy('project-list')
 
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data['is_edit'] = False
-        return context_data
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
+    def form_valid(self, f):
+        f.instance.author = self.request.user
+        return super().form_valid(f)
 
 
-class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-
+class ListingUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Project
-    form_class = ProjectForm
-    template_name = 'projects/create-project.html'
+    form_class = ListingForm
+    template_name = 'projects/edit.html'
+    success_url = reverse_lazy('project-list')
 
-    def test_func(self):
-        return self.get_object().author == self.request.user
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data['is_edit'] = True
-        return context_data
+    def get_queryset(self):
+        return Project.objects.filter(author=self.request.user)
 
 
-@login_required
-@require_POST
-def toggle_favorite(request, pk):
-    project = get_object_or_404(Project, pk=pk)
-    current_user = request.user
-    if current_user.favorite_projects.filter(pk=project.pk).exists():
-        project.favorited_by.remove(current_user)
-        return JsonResponse({'status': 'ok', 'favorite': False})
-    else:
-        project.favorited_by.add(current_user)
-        return JsonResponse({'status': 'ok', 'favorite': True})
+def toggle_saved(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'login required'}, status=401)
+    p = get_object_or_404(Project, pk=pk)
+    f, created = Favorite.objects.get_or_create(user=request.user, project=p)
+    if not created:
+        f.delete()
+        return JsonResponse({'saved': False})
+    return JsonResponse({'saved': True})
 
 
-@login_required
-@require_POST
-def toggle_participate(request, pk):
-    project = get_object_or_404(Project, pk=pk)
-    if project.author == request.user:
-        return JsonResponse({'status': 'error'}, status=HTTPStatus.BAD_REQUEST)
-
-    is_participant = project.participants.filter(pk=request.user.pk).exists()
-    if is_participant:
-        project.participants.remove(request.user)
-    else:
-        project.participants.add(request.user)
-    return JsonResponse({'status': 'ok', 'participant': not is_participant})
+def toggle_teammate(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'login required'}, status=401)
+    p = get_object_or_404(Project, pk=pk)
+    if p.status != 'active':
+        return JsonResponse({'error': 'project closed'}, status=400)
+    m, created = Membership.objects.get_or_create(project=p, user=request.user, defaults={'role': 'developer'})
+    if not created:
+        m.delete()
+        return JsonResponse({'joined': False})
+    return JsonResponse({'joined': True})
 
 
-@login_required
-@require_POST
-def complete_project(request, pk):
-    project = get_object_or_404(Project, pk=pk, author=request.user)
-    project.status = ProjectState.CLOSED
-    project.save(update_fields=['status'])
-    return JsonResponse({'status': 'ok'})
+def close_listing(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'login required'}, status=401)
+    p = get_object_or_404(Project, pk=pk)
+    if p.author != request.user:
+        return JsonResponse({'error': 'not owner'}, status=403)
+    p.status = 'closed'
+    p.save()
+    return JsonResponse({'status': 'closed'})

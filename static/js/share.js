@@ -1,51 +1,38 @@
-// Global share button handler
-// Works for any element with class="share-button" and optional data-url attribute
-
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest(".share-button");
+document.addEventListener("click", function(e) {
+  var btn = e.target.closest(".pf-share-btn");
   if (!btn) return;
-
   e.preventDefault();
 
-  const url = btn.dataset.url
+  var url = btn.dataset.url
     ? window.location.origin + btn.dataset.url
     : window.location.href;
 
-  navigator.clipboard
-    .writeText(url)
-    .then(() => {
-      if (window.toast) {
-        window.toast("Ссылка скопирована: " + url, { type: 'info' });
-      } else {
-        alert("Ссылка скопирована: " + url);
-      }
-    })
-    .catch((err) => {
-      console.error("Ошибка копирования: ", err);
-      fallbackCopyTextToClipboard(url);
-    });
+  navigator.clipboard.writeText(url).then(function() {
+    if (window.toast) window.toast("Copied: " + url);
+    else alert("Copied: " + url);
+  }).catch(function(err) {
+    console.error("copy failed:", err);
+    fallback(url);
+  });
 });
 
-function fallbackCopyTextToClipboard(text) {
+function fallback(text) {
   try {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.setAttribute("readonly", "");
-    textArea.style.position = "fixed";
-    textArea.style.top = "-1000px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    const successful = document.execCommand("copy");
-    document.body.removeChild(textArea);
-    if (!successful) throw new Error("document.execCommand copy failed");
-    if (window.toast) {
-      window.toast("Ссылка скопирована: " + text, { type: 'info' });
-    } else {
-      alert("Ссылка скопирована: " + text);
-    }
-  } catch (err) {
-    console.error("Ошибка копирования (fallback): ", err);
-    window.prompt("Скопируйте ссылку:", text);
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    var ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    if (!ok) throw new Error("execCommand failed");
+    if (window.toast) window.toast("Copied: " + text);
+    else alert("Copied: " + text);
+  } catch(err) {
+    console.error("fallback failed:", err);
+    window.prompt("Copy link:", text);
   }
 }

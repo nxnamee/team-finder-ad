@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/project_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/skills.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pf-wrap-sm">
+  <div class="pf-profile-head">
+    <div class="pf-profile-meta">
+      {% if profile.avatar %}
+      <img src="{{ profile.avatar.url }}" alt="" class="pf-avatar">
+      {% else %}
+      <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-avatar">
+      {% endif %}
+      <div class="pf-details">
+        <h2 class="pf-fullname">{{ profile.username }}</h2>
+        {% if profile.role %}<span class="pf-badge">{{ profile.role }}</span>{% endif %}
+        <p class="pf-bio">{{ profile.bio|default:"No bio yet." }}</p>
+        <div class="pf-links">
+          {% if profile.email %}
+          <span>{% include 'includes/svg/email.html' %} {{ profile.email }}</span>
+          {% endif %}
+          {% if profile.github %}
+          <span>{% include 'includes/svg/github.html' %} <a href="{{ profile.github }}" target="_blank">GitHub</a></span>
+          {% endif %}
+          {% if profile.linkedin %}
+          <span>{% include 'includes/svg/phone.html' %} <a href="{{ profile.linkedin }}" target="_blank">LinkedIn</a></span>
+          {% endif %}
+          {% if profile.website %}
+          <span><a href="{{ profile.website }}" target="_blank">Website</a></span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="pf-actions">
+      <a href="#" class="pf-btn-dark pf-btn-share pf-share-btn" data-url="{% url 'profile-detail' profile.id %}">
+        {% include 'includes/svg/share.html' %}
+      </a>
+      {% if request.user == profile %}
+      <a href="{% url 'account-edit' %}" class="pf-btn-dark">
+        {% include 'includes/svg/pen.html' %} Edit
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if profile.skills %}
+  <div class="pf-skills-box" style="border:1px solid #ddd;border-radius:12px;padding:20px;margin-bottom:20px;background:white;">
+    <h3 style="margin:0;">Skills</h3>
+    <div class="pf-skills" style="margin-top:12px;">
+      {% for s in profile.skills %}
+      <span class="pf-skill">{{ s }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <h3>Projects ({{ profile.projects.count }})</h3>
+  <div class="pf-mini-grid">
+    {% for p in profile.projects.all %}
+    <div class="pf-mini-card">
+      <div class="pf-mini-card-top">
+        <h4><a href="{% url 'project-detail' p.id %}">{{ p.title }}</a></h4>
+        <span class="pf-badge-dark">{{ p.get_status_display }}</span>
+      </div>
+      <div class="pf-mini-card-body">
+        <p>{{ p.description|truncatechars:150 }}</p>
+        <div class="pf-mini-card-foot">
+          <small class="pf-date">{{ p.created_at|date:"M d, Y" }}</small>
+          <span class="pf-count">{% include 'includes/svg/participants.html' %}{{ p.participants.count }}</span>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p>No projects yet</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

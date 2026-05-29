@@ -1,172 +1,101 @@
-// Profile skills UI logic
 (function(){
-  document.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("skills-container");
-    if (!container) return;
+  document.addEventListener("DOMContentLoaded", function() {
+    var box = document.getElementById("skills-box");
+    if (!box) return;
 
-    const projectId = container.dataset.projectId;
-    const addBtn = document.getElementById("add-skill-btn");
-    const inputWrapper = document.getElementById("skill-input-wrapper");
-    const input = document.getElementById("skill-input");
-    const suggestions = document.getElementById("skill-suggestions");
+    var pid = box.dataset.projectId;
+    var addBtn = document.getElementById("skill-add-btn");
+    var wrap = document.getElementById("skill-input-wrap");
+    var field = document.getElementById("pf-skill-typed");
+    var menu = document.getElementById("skill-suggestions");
+    if (!addBtn || !wrap || !field || !menu) return;
 
-    if (!addBtn || !inputWrapper || !input || !suggestions) return;
+    var SKILLS = ['Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','Django','Flask','FastAPI','PostgreSQL','MongoDB','Docker','Kubernetes','AWS','GCP','Azure','Git','UI/UX Design','Figma','Product Management','Data Science','Machine Learning','DevOps','Testing'];
 
-    addBtn.addEventListener("click", () => {
+    addBtn.addEventListener("click", function() {
       addBtn.classList.add("hidden");
-      inputWrapper.classList.remove("hidden");
-      input.value = "";
-      suggestions.innerHTML = "";
-      suggestions.classList.add("hidden");
-      input.focus();
+      wrap.classList.remove("hidden");
+      field.value = "";
+      menu.innerHTML = "";
+      menu.classList.add("hidden");
+      field.focus();
     });
 
-    let t = null;
-    input.addEventListener("input", () => {
-      const q = input.value.trim();
-      clearTimeout(t);
+    var debounce = null;
+    field.addEventListener("input", function() {
+      var q = field.value.trim().toLowerCase();
+      clearTimeout(debounce);
       if (!q) {
-        suggestions.classList.add("hidden");
-        suggestions.innerHTML = "";
+        menu.classList.add("hidden");
+        menu.innerHTML = "";
         return;
       }
-      t = setTimeout(async () => {
-        const res = await fetch(`/projects/skills/?q=${encodeURIComponent(q)}`);
-        if (!res.ok) return;
-        const data = await res.json();
-
-        suggestions.innerHTML = "";
-        data.forEach(s => {
-          const li = document.createElement("li");
-          li.textContent = s.name;
-          li.dataset.id = s.id;
-          li.className = "suggestion-item";
-          suggestions.appendChild(li);
+      debounce = setTimeout(function() {
+        var matches = SKILLS.filter(function(s) { return s.toLowerCase().indexOf(q) !== -1; });
+        menu.innerHTML = "";
+        matches.forEach(function(s) {
+          var li = document.createElement("li");
+          li.textContent = s;
+          li.dataset.name = s;
+          menu.appendChild(li);
         });
-
-        const exact = data.some(s => s.name.toLowerCase() === q.toLowerCase());
+        var exact = matches.some(function(s) { return s.toLowerCase() === q; });
         if (!exact) {
-          const liNew = document.createElement("li");
-          liNew.textContent = `Создать «${q}»`;
-          liNew.dataset.name = q;
-          liNew.className = "create-new";
-          suggestions.appendChild(liNew);
+          var fresh = document.createElement("li");
+          fresh.textContent = '+' + field.value.trim();
+          fresh.dataset.name = field.value.trim();
+          fresh.className = "pf-new-skill";
+          menu.appendChild(fresh);
         }
-
-        suggestions.classList.remove("hidden");
+        menu.classList.remove("hidden");
       }, 200);
     });
 
-    suggestions.addEventListener("mousedown", async (e) => {
-      const li = e.target.closest("li");
+    menu.addEventListener("mousedown", function(e) {
+      var li = e.target.closest("li");
       if (!li) return;
-
-      if (li.classList.contains("create-new")) {
-        await addSkillByName(li.dataset.name);
-      } else if (li.dataset.id) {
-        await addSkillById(li.dataset.id);
-      }
-      hideInput();
+      addChip(li.dataset.name);
+      hideWrap();
     });
 
-    input.addEventListener("keydown", async (e) => {
+    field.addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        const q = input.value.trim();
+        var q = field.value.trim();
         if (!q) return;
-
-        const first = suggestions.querySelector("li");
-        if (first && first.dataset.id) {
-          await addSkillById(first.dataset.id);
-        } else {
-          await addSkillByName(q);
-        }
-        hideInput();
+        var first = menu.querySelector("li");
+        if (first) addChip(first.dataset.name);
+        else addChip(q);
+        hideWrap();
       }
-      if (e.key === "Escape") {
-        hideInput();
-      }
+      if (e.key === "Escape") { hideWrap(); }
     });
 
-    input.addEventListener("blur", () => setTimeout(hideInput, 120));
+    field.addEventListener("blur", function() { setTimeout(hideWrap, 120); });
 
-    function hideInput() {
-      inputWrapper.classList.add("hidden");
-      suggestions.classList.add("hidden");
+    function hideWrap() {
+      wrap.classList.add("hidden");
+      menu.classList.add("hidden");
       addBtn.classList.remove("hidden");
     }
 
-    container.addEventListener("click", async (e) => {
-      if (e.target.classList.contains("remove-skill-btn")) {
-        const chip = e.target.closest(".skill-chip");
-        const skillId = chip.dataset.id;
-        const res = await fetch(`/projects/${projectId}/skills/${skillId}/remove/`, {
-          method: "POST",
-          headers: { "X-CSRFToken": getCookie("csrftoken") }
-        });
-        if (res.ok) {
-          chip.remove();
-        }
+    box.addEventListener("click", function(e) {
+      if (e.target.classList.contains("pf-skill-del")) {
+        var chip = e.target.closest(".pf-skill");
+        if (chip) chip.remove();
       }
     });
 
-    async function addSkillById(skillId) {
-      const res = await fetch(`/projects/${projectId}/skills/add/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken"),
-        },
-        body: JSON.stringify({ skill_id: skillId }),
-      });
-      if (res.ok) {
-        const skill = await res.json();
-        appendChip(skill.id, skill.name);
-      }
-    }
-
-    async function addSkillByName(name) {
-      const res = await fetch(`/projects/${projectId}/skills/add/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken"),
-        },
-        body: JSON.stringify({ name }),
-      });
-      if (res.ok) {
-        const skill = await res.json();
-        appendChip(skill.id, skill.name);
-      }
-    }
-
-    function appendChip(id, name) {
-      if (container.querySelector(`.skill-chip[data-id="${id}"]`)) return;
-
-      const chip = document.createElement("span");
-      chip.className = "skill-chip";
-      chip.dataset.id = id;
-      chip.innerHTML = `${name} <button type="button" class="remove-skill-btn" aria-label="Удалить" title="Удалить">×</button>`;
-
-      container.insertBefore(chip, addBtn);
-
-      const empty = container.querySelector(".skill-empty");
+    function addChip(name) {
+      if (!name) return;
+      if (box.querySelector('.pf-skill[data-name="' + name.replace(/"/g,'&quot;') + '"]')) return;
+      var chip = document.createElement("span");
+      chip.className = "pf-skill";
+      chip.dataset.name = name;
+      chip.innerHTML = name + ' <button type="button" class="pf-skill-del" aria-label="Remove">x</button>';
+      box.insertBefore(chip, addBtn);
+      var empty = box.querySelector(".skill-empty");
       if (empty) empty.remove();
-    }
-
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let cookie of cookies) {
-          cookie = cookie.trim();
-          if (cookie.startsWith(name + "=")) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
     }
   });
 })();

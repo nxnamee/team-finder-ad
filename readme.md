@@ -1,125 +1,111 @@
 # Team Finder
 
-Team Finder - платформа для поиска единомышленников для совместной работы над pet-проектами.
+Team Finder - Сервис для поиска соавторов и организации командной работы над некоммерческими проектами.
 
 ## Возможности
 
-- просмотр списка актуальных проектов;
-- регистрация и вход по email и паролю;
-- просмотр публичных профилей пользователей;
-- редактирование своего профиля;
-- создание и редактирование своих проектов;
-- добавление проектов в избранное;
-- участие в чужих проектах;
-- просмотр списка пользователей с фильтрацией по варианту 1;
-- административное управление пользователями и проектами через Django admin.
+- просмотр активных проектов с фильтрацией;
+- авторизация через email и пароль;
+- просмотр профилей участников;
+- настройка личной информации;
+- управление собственными проектами (создание, корректировка);
+- сохранение понравившихся проектов в избранное;
+- запрос на вступление в команду;
+- поиск пользователей с сортировкой (варианту 1);
 
 ## Стек
 
 - Python 3.9
 - Django 3.2
-- Django REST Framework
+- DRF (Django REST Framework)
 - PostgreSQL 16
 - Docker Compose
 - Pillow
 - python-decouple
 
-## Структура интерфейса
+## Страницы интерфейса
 
-Пользовательская часть проекта работает через шаблоны Django:
+Пользовательская часть построена на шаблонах Django:
 
-- `/` и `/projects/list/` - список проектов;
-- `/users/register/` - регистрация;
-- `/users/login/` - вход;
-- `/users/<id>/` - профиль пользователя;
-- `/users/edit-profile/` - редактирование профиля;
-- `/users/change-password/` - смена пароля;
-- `/users/list/` - список пользователей;
-- `/projects/<id>/` - страница проекта;
-- `/projects/create-project/` - создание проекта;
-- `/projects/<id>/edit/` - редактирование проекта;
-- `/projects/favorites/` - избранные проекты.
+- / и /projects/list/ - список проектов;
+- /users/register/ - регистрация;
+- /users/login/ - вход;
+- /users/<id>/ - просмотр профиля;
+- /users/edit-profile/ - редактирование профиля;
+- /users/change-password/ - обновление пароля;
+- /users/list/ - каталог пользователей;
+- /projects/<id>/ - страница проекта;
+- /projects/create-project/ - создание нового проекта;
+- /projects/<id>/edit/ - редактирование проекта;
+- /projects/favorites/ - список избранных проектов.
 
-API также сохранен и доступен отдельно по префиксу `/api/v1/` (при подключении api_urls в корневом urls.py).
+API сохранен и доступен по маршруту /api/v1/ (нужно подключить api_urls в основном urls.py).
 
-## Подготовка `.env`
+## Настройка окружения
 
-Скопируйте `.env_example` в `.env` и заполните значения.
+Скопируйте .env_example в .env и укажите свои значения.
 
 Пример:
 
-```env
 DJANGO_SECRET_KEY=change_for_safety
 DJANGO_DEBUG=True
 ALLOWED_HOSTS=127.0.0.1,localhost
 
-POSTGRES_DB=team_finder
-POSTGRES_USER=team_finder
-POSTGRES_PASSWORD=team_finder
+POSTGRES_DB=team_finder_1var
+POSTGRES_USER=team_finder_1var
+POSTGRES_PASSWORD=team_finder_1var
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
-```
 
-Для локального запуска без Docker в `POSTGRES_HOST` можно указать `localhost`, а в `POSTGRES_PORT` - порт локальной базы.
+Для локального запуска без Docker в POSTGRES_HOST нужно указать localhost, а в POSTGRES_PORT - порт локальной базы.
 
 ## Запуск через Docker Compose
 
-1. Создайте файл `.env` на основе `.env_example`.
-2. Соберите и запустите контейнеры:
+1. Создайте файл .env на основе .env_example.
 
-```bash
+2. Запустите сборку:
+
 docker compose up --build -d
-```
 
-3. Примените миграции:
+3. Выполните миграции:
 
-```bash
 docker compose exec web python manage.py migrate
-```
 
-4. Создайте суперпользователя:
+4. Создайте администратора:
 
-```bash
 docker compose exec web python manage.py createsuperuser
-```
 
 5. Откройте проект:
 
-- сайт: `http://127.0.0.1:8000/`
-- админка: `http://127.0.0.1:8000/admin/`
+- сайт: http://127.0.0.1:8000/
+- админка: http://127.0.0.1:8000/admin/
 
 ## Локальный запуск без Docker
 
 1. Установите зависимости:
 
-```bash
 pip install -r requirements.txt
-```
 
-2. Подготовьте PostgreSQL и заполните `.env`.
-3. Выполните миграции:
+2. Настройте PostgreSQL и укажите параметры в .env.
 
-```bash
+3. Примените миграции:
+
 python manage.py migrate
-```
 
 4. Запустите сервер:
 
-```bash
 python manage.py runserver
-```
 
 ## Для ревьюера
 
-- проект использует PostgreSQL;
 - шаблонная часть реализована через Django views и templates;
-- API не удалялось и доступно отдельно (api_urls подключены, корневой urls.py можно дополнить);
-- настройки берутся из `.env`;
-- медиафайлы сохраняются в `media/`;
-- данные PostgreSQL в Docker сохраняются в volume `postgres_data`.
+- проект использует PostgreSQL в качестве СУБД;
+- конфиденциальные данные внесены в .env;
+- загруженные файлы сохраняются в media/;
+- данные PostgreSQL в Docker сохраняются в volume postgres_data.
 
 ## Автор
 
-Елена Есина
+Сидельников Дмитрий
 
-- GitHub: `https://github.com/velH4ard`
+- GitHub: https://github.com/MoonBunny70

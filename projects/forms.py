@@ -1,26 +1,16 @@
 from django import forms
-
-from projects.models import Project
-from team_finder.constants import TITLE_MAX_LENGTH
+from .models import Project
 
 
-class ProjectForm(forms.ModelForm):
-
-    name = forms.CharField(label='Название', max_length=TITLE_MAX_LENGTH)
-
+class ListingForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ('description', 'status')
+        fields = ('title', 'description', 'status', 'skills')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 5}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.pk and not self.is_bound:
-            self.initial['name'] = self.instance.title
-
-    def save(self, commit=True):
-        project = super().save(commit=False)
-        project.title = self.cleaned_data['name']
-        if commit:
-            project.save()
-            self.save_m2m()
-        return project
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        for f in self.fields.values():
+            f.widget.attrs.update({'class': 'pf-input'})

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Members{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/project_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/participants.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pf-wrap">
+  <div class="pf-bar">
+    <div>
+      <h1 class="pf-heading">Members</h1>
+      <p class="pf-sub">Find collaborators and teammates</p>
+    </div>
+  </div>
+
+  <div class="pf-filter">
+    <span class="pf-filter-label">Filter:</span>
+    <div class="pf-chips">
+      {% for key, label in role_options.items %}
+      <a href="?role={{ key }}" class="pf-chip {% if request.GET.role == key %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+      {% if request.GET.role or request.GET.skill %}
+      <a href="." class="pf-reset">reset</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if members %}
+  <div class="pf-team-grid">
+    {% for m in members %}
+    <div class="pf-team-card">
+      <div class="pf-team-card-top">
+        {% if m.avatar %}
+        <img src="{{ m.avatar.url }}" alt="" class="pf-avatar">
+        {% else %}
+        <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-avatar">
+        {% endif %}
+      </div>
+      <div class="pf-team-info">
+        <h3 class="pf-team-name">{{ m.username }}</h3>
+        <p class="pf-team-role">{{ m.bio|truncatechars:80 }}</p>
+      </div>
+      <a href="{% url 'profile-detail' m.id %}" class="pf-btn-outline">
+        {% include 'includes/svg/eye.html' %} View
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+  <div class="pf-filter" style="margin-top:30px;text-align:center;">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}" class="pf-chip">Prev</a>
+    {% endif %}
+    <span style="margin:0 12px;font-size:14px;">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}" class="pf-chip">Next</a>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="pf-empty">
+    <h3>No members found</h3>
+    <p>Try adjusting your filters</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

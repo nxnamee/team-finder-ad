@@ -1,9 +1,23 @@
+"""User DRF serializer."""
+
 from rest_framework import serializers
-from .models import CustomUser
+
+from users.models import User
 
 
-class MemberSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    """Inline all profile fields on the user."""
+
     class Meta:
-        model = CustomUser
-        fields = ('id', 'username', 'email', 'bio', 'avatar', 'github', 'linkedin', 'website', 'skills', 'role')
-        read_only_fields = ('id',)
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "avatar",
+            "description",
+            "phone",
+            "github",
+        )

@@ -1,10 +1,9 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from . import views
+"""API route for user listing."""
 
-router = DefaultRouter()
-router.register(r'users', views.MemberViewSet)
+from django.urls import path
+
+from users.views import UserViewSet
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("list/", UserViewSet.as_view({"get": "list"}), name="user-list"),
 ]

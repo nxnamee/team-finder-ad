@@ -1,21 +1,22 @@
+"""Admin configuration for projects."""
+
 from django.contrib import admin
-from .models import Project, Membership, Favorite
+
+from projects.models import Project
 
 
 @admin.register(Project)
-class ListingAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'status', 'created_at')
-    list_filter = ('status', 'skills')
-    search_fields = ('title', 'description', 'author__username')
-    readonly_fields = ('created_at', 'updated_at')
+class ProjectAdmin(admin.ModelAdmin):
+    """Project admin with list/search/filter and inline status editing."""
 
+    list_display = ("title", "author", "status", "participant_count", "pub_date")
+    list_editable = ("status",)
+    search_fields = ("title", "description", "author__username")
+    list_filter = ("status", "pub_date")
+    readonly_fields = ("pub_date", "updated_at")
 
-@admin.register(Membership)
-class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('project', 'user', 'role')
-    list_filter = ('role',)
+    def participant_count(self, obj):
+        """Display number of participants."""
+        return obj.participants.count()
 
-
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'project', 'created_at')
+    participant_count.short_description = "Участники"

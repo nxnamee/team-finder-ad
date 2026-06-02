@@ -16,13 +16,18 @@
     {% csrf_token %}
 
     <div class="form-field">
-      {{ form.name.label_tag }}
-      {{ form.name }}
+      {{ form.title.label_tag }}
+      {{ form.title }}
     </div>
 
     <div class="form-field">
       {{ form.description.label_tag }}
       {{ form.description }}
+    </div>
+
+    <div class="form-field">
+      {{ form.github.label_tag }}
+      {{ form.github }}
     </div>
 
     <div class="form-field">

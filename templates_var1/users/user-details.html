@@ -20,9 +20,9 @@
                 <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="profile-avatar">
             {% endif %}
             <div class="profile-details">
-                <h2 class="profile-name">{{ user.name }} {{ user.surname }}</h2>
+                <h2 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h2>
                 <p class="profile-description">
-                    {{ user.about|default:"Описание профиля пока не добавлено." }}
+                    {{ user.description|default:"Описание профиля пока не добавлено." }}
                 </p>
                 <div class="profile-contacts">
                     {% if user.email %}
@@ -31,9 +31,9 @@
                     {% if user.phone %}
                     <span>{% include 'includes/svg/phone.html' %} {{ user.phone }}</span>
                     {% endif %}
-                    {% if user.github_url %}
+                    {% if user.github %}
                     <span>{% include 'includes/svg/github.html' %}
-                        <a href="{{ user.github_url }}" target="_blank">GitHub</a>
+                        <a href="{{ user.github }}" target="_blank">GitHub</a>
                     </span>
                     {% endif %}
                 </div>
@@ -58,13 +58,13 @@
         </div>
     </div>
 
-    <h3>Проекты ({{ user.owned_projects.all|length }})</h3>
+    <h3>Проекты ({{ user.projects.all|length }})</h3>
 
     <div class="collapsed-project-grid">
-        {% for project in user.owned_projects.all %}
+        {% for project in user.projects.all %}
         <div class="collapsed-project-card">
             <div class="collapsed-project-card-header">
-                <h4><a href="/projects/{{ project.id }}">{{ project.name }}</a></h4>
+                <h4><a href="/projects/{{ project.id }}">{{ project.title }}</a></h4>
                 <span class="project-status-black">
                     {% if project.status == "open" %}
                         Открыт
@@ -80,7 +80,7 @@
                     <p class="project-card-description">{{ project.description|truncatechars:150 }}</p>
                 </div>
                 <div class="collapsed-project-card-footer">
-                    <p class="project-date">{{ project.created_at|date:"d.m.Y" }}</p>
+                    <p class="project-date">{{ project.pub_date|date:"d.m.Y" }}</p>
                     {% with count=project.participants.count %}
                     <div class="project-participants">
                         {% include 'includes/svg/participants.html' %}

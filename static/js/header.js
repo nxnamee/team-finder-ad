@@ -1,20 +1,31 @@
+// Header sidebar toggle logic
 (function(){
   document.addEventListener("DOMContentLoaded", function() {
-    var btn = document.querySelector('.pf-user-menu');
-    var panel = document.getElementById('userSidebar');
-    var shade = document.getElementById('sidebarOverlay');
-    if (!btn || !panel || !shade) return;
+    const userMenu = document.querySelector('.user-menu');
+    const sidebar = document.getElementById('userSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
 
-    function open() { panel.classList.add('show'); shade.classList.add('show'); }
-    function close() { panel.classList.remove('show'); shade.classList.remove('show'); }
+    if (!userMenu || !sidebar || !overlay) return;
 
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation(); open();
+    function openSidebar() {
+      sidebar.classList.add('show');
+      overlay.classList.add('show');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
+    }
+
+    userMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSidebar();
     });
 
-    document.addEventListener('click', function(e) {
-      if (!panel.contains(e.target) && !btn.contains(e.target) && panel.classList.contains('show')) {
-        close();
+    document.addEventListener('click', (e) => {
+      const isClickInside = sidebar.contains(e.target) || userMenu.contains(e.target);
+      if (!isClickInside && sidebar.classList.contains('show')) {
+        closeSidebar();
       }
     });
   });

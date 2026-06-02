@@ -1,13 +1,27 @@
+"""HTML URLs for the projects application."""
+
 from django.urls import path
-from . import web_views
+
+from projects.web_views import (
+    FavoriteProjectsView,
+    ProjectCreateView,
+    ProjectDetailView,
+    ProjectListView,
+    ProjectUpdateView,
+    complete_project,
+    toggle_favorite,
+    toggle_participate,
+)
+
+app_name = "projects"
 
 urlpatterns = [
-    path('', web_views.CatalogueView.as_view(), name='project-list'),
-    path('saved/', web_views.SavedProjectsView.as_view(), name='saved-projects'),
-    path('project/<int:pk>/', web_views.ListingDetailView.as_view(), name='project-detail'),
-    path('project/create/', web_views.ListingCreateView.as_view(), name='project-create'),
-    path('project/<int:pk>/edit/', web_views.ListingUpdateView.as_view(), name='project-edit'),
-    path('api/toggle-saved/<int:pk>/', web_views.toggle_saved, name='toggle-saved'),
-    path('api/toggle-join/<int:pk>/', web_views.toggle_teammate, name='toggle-join'),
-    path('api/close/<int:pk>/', web_views.close_listing, name='close-listing'),
+    path("list/", ProjectListView.as_view(), name="project-list"),
+    path("favorites/", FavoriteProjectsView.as_view(), name="favorite-projects"),
+    path("create-project/", ProjectCreateView.as_view(), name="project-create"),
+    path("<int:pk>/", ProjectDetailView.as_view(), name="project-detail"),
+    path("<int:pk>/edit/", ProjectUpdateView.as_view(), name="project-edit"),
+    path("<int:pk>/toggle-favorite/", toggle_favorite, name="toggle-favorite"),
+    path("<int:pk>/toggle-participate/", toggle_participate, name="toggle-participate"),
+    path("<int:pk>/complete/", complete_project, name="complete-project"),
 ]

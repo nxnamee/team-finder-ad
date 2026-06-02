@@ -1,17 +1,31 @@
+"""Admin configuration for the custom User model."""
+
 from django.contrib import admin
-from .models import CustomUser
+from django.contrib.auth.admin import UserAdmin
+
+from users.models import User
 
 
-@admin.register(CustomUser)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'role', 'is_active', 'date_joined')
-    list_filter = ('role', 'is_active', 'is_staff')
-    search_fields = ('username', 'email', 'bio')
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    """User admin with profile fields."""
+
+    list_display = ("email", "first_name", "last_name", "is_active", "date_joined")
+    search_fields = ("email", "first_name", "last_name")
+    list_filter = ("is_active", "is_staff", "date_joined")
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal', {'fields': ('email', 'bio', 'avatar', 'skills', 'role')}),
-        ('Links', {'fields': ('github', 'linkedin', 'website')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Dates', {'fields': ('last_login', 'date_joined')}),
+        (None, {"fields": ("email", "password")}),
+        (
+            "Личные данные",
+            {
+                "fields": ("first_name", "last_name", "avatar", "description", "phone", "github"),
+            },
+        ),
+        (
+            "Права доступа",
+            {
+                "fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions"),
+            },
+        ),
+        ("Даты", {"fields": ("last_login", "date_joined")}),
     )
-    readonly_fields = ('last_login', 'date_joined')

@@ -12,16 +12,16 @@
 <div class="project-container">
     <div class="project-card">
         <div class="project-card-header">
-            <a href="/users/{{ project.owner.id }}">
+            <a href="/users/{{ project.author.id }}">
                 <div class="project-card-header-left">
-                    {% if project.owner.avatar %}
-                        <img src="{{ project.owner.avatar.url }}" alt="Аватар автора" class="project-author-avatar">
+                    {% if project.author.avatar %}
+                        <img src="{{ project.author.avatar.url }}" alt="Аватар автора" class="project-author-avatar">
                     {% else %}
                         <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="project-author-avatar">
                     {% endif %}
                     <div class="project-meta">
-                        <span class="project-author">{{ project.owner.name }} {{ project.owner.surname }}</span>
-                        <span class="project-date">{{ project.created_at|date:"d.m.Y" }}</span>
+                        <span class="project-author">{{ project.author.first_name }} {{ project.author.last_name }}</span>
+                        <span class="project-date">{{ project.pub_date|date:"d.m.Y" }}</span>
                     </div>
                 </div>
             </a>
@@ -39,13 +39,13 @@
         </div>
 
         <div class="project-card-body">
-                <h2 class="project-title">{{ project.name }}</h2>
+                <h2 class="project-title">{{ project.title }}</h2>
                 <p class="project-description">{{ project.description }}</p>
 
-                {% if project.github_url %}
+                {% if project.github %}
                 <p class="project-link">
                     {% include 'includes/svg/github.html' %}
-                    <a href="{{ project.github_url }}" target="_blank">Репозиторий на GitHub</a>
+                    <a href="{{ project.github }}" target="_blank">Репозиторий на GitHub</a>
                 </p>
                 {% endif %}
         </div>
@@ -55,7 +55,7 @@
                data-url="/projects/{{ project.id }}">
                 {% include 'includes/svg/share.html' %}
             </a>
-            {% if user.id == project.owner.id %}
+            {% if user.id == project.author.id %}
                 <a href="/projects/{{ project.id }}/edit" class="black-button">
                     {% include 'includes/svg/pen.html' %}
                     Редактировать
@@ -70,7 +70,7 @@
                     <button id="participate-btn" class="black-button"
                             data-project="{{ project.id }}"
                             data-user-id="{{ request.user.id }}"
-                            data-user-name="{{ request.user.name }} {{ request.user.surname }}"
+                            data-user-name="{{ request.user.first_name }} {{ request.user.last_name }}"
                             data-user-avatar="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}"
                     >
                         {% if request.user in project.participants.all %}
@@ -97,9 +97,9 @@
                     <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="participant-avatar">
                 {% endif %}
                 <div class="participant-info">
-                    <span class="participant-name">{{ member.name }} {{ member.surname }}</span>
+                    <span class="participant-name">{{ member.first_name }} {{ member.last_name }}</span>
                     <span class="participant-role">
-                        {% if member.id == project.owner.id %}Автор проекта{% else %}Участник{% endif %}
+                        {% if member.id == project.author.id %}Автор проекта{% else %}Участник{% endif %}
                     </span>
                 </div>
             </div>

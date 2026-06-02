@@ -1,10 +1,13 @@
-from django.urls import path, include
+"""API route registration."""
+
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from . import views
+
+from projects.views import ProjectViewSet
 
 router = DefaultRouter()
-router.register(r'projects', views.ListingViewSet, basename='api-project')
+router.register("projects", ProjectViewSet, basename="project")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

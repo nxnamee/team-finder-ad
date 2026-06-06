@@ -15,8 +15,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ("status", "pub_date")
     readonly_fields = ("pub_date", "updated_at")
 
+    @admin.display(description="Участники")
     def participant_count(self, obj):
         """Display number of participants."""
         return obj.participants.count()
-
-    participant_count.short_description = "Участники"

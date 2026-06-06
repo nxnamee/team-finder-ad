@@ -12,7 +12,7 @@ def _build_avatar(letter):
     """Generate a solid-colour avatar with the given letter."""
     img = Image.new("RGB", (AVATAR_SIZE, AVATAR_SIZE), AVATAR_BG)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.load_default()
+    font = ImageFont.load_default(size=64)
     bbox = draw.textbbox((0, 0), letter, font=font)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]

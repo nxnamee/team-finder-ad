@@ -24,7 +24,6 @@ class User(AbstractUser):
     )
     phone = models.CharField(
         max_length=PHONE_MAX_LENGTH,
-        blank=True,
         verbose_name="Телефон",
     )
     github = models.URLField(

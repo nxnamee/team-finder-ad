@@ -45,7 +45,11 @@ class FavoriteProjectsView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """Favorited projects for the current user."""
-        return self.request.user.favorite_projects.select_related("author").distinct()
+        return (
+            self.request.user.favorite_projects.select_related("author")
+            .prefetch_related("participants")
+            .distinct()
+        )
 
     def get_context_data(self, **kwargs):
         """Inject set of favorited project IDs."""

@@ -1,32 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}New Project{% endblock %}
+{% block title %}{% if is_edit %}Редактирование проекта{% else %}Создание проекта{% endif %}{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile_edit.css' %}">
 <link rel="stylesheet" href="{% static 'css/create-project.css' %}">
-<link rel="stylesheet" href="{% static 'css/skills.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="pf-editor">
-  <h2 class="pf-form-title">New Project</h2>
-  <form method="post" class="pf-editor-form">
+<div class="project-create-container">
+  <h2 class="form-title">{% if is_edit %}Редактирование проекта{% else %}Создание проекта{% endif %}</h2>
+  <form method="post" class="project-create-form">
     {% csrf_token %}
-    <div class="pf-field">
+
+    <div class="form-field">
       {{ form.title.label_tag }}
       {{ form.title }}
     </div>
-    <div class="pf-field">
+
+    <div class="form-field">
       {{ form.description.label_tag }}
       {{ form.description }}
     </div>
-    <div class="pf-field">
+
+    <div class="form-field">
+      {{ form.github.label_tag }}
+      {{ form.github }}
+    </div>
+
+    <div class="form-field">
       {{ form.status.label_tag }}
       {{ form.status }}
     </div>
+
     {% if form.errors %}
-    <div class="pf-errors">
+    <div class="form-errors">
       {% for field, errors in form.errors.items %}
       {% for error in errors %}
       <p>{{ error }}</p>
@@ -34,9 +44,10 @@
       {% endfor %}
     </div>
     {% endif %}
-    <div class="pf-actions">
-      <a href="{% url 'project-list' %}" class="pf-btn-cancel">Cancel</a>
-      <button type="submit" class="pf-btn-save">Publish</button>
+
+    <div class="form-actions">
+      <a href="/" class="cancel-button">Отмена</a>
+      <button type="submit" class="save-button">{% if is_edit %}Сохранить{% else %}Опубликовать{% endif %}</button>
     </div>
   </form>
 </div>

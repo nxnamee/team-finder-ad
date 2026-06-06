@@ -1,85 +1,107 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ profile.username }}{% endblock %}
+{% block title %}Профиль пользователя{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/project_list.css' %}">
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-<link rel="stylesheet" href="{% static 'css/skills.css' %}">
 {% endblock %}
 
+{% with page_id="profile" %}
 {% block content %}
-<div class="pf-wrap-sm">
-  <div class="pf-profile-head">
-    <div class="pf-profile-meta">
-      {% if profile.avatar %}
-      <img src="{{ profile.avatar.url }}" alt="" class="pf-avatar">
-      {% else %}
-      <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-avatar">
-      {% endif %}
-      <div class="pf-details">
-        <h2 class="pf-fullname">{{ profile.username }}</h2>
-        {% if profile.role %}<span class="pf-badge">{{ profile.role }}</span>{% endif %}
-        <p class="pf-bio">{{ profile.bio|default:"No bio yet." }}</p>
-        <div class="pf-links">
-          {% if profile.email %}
-          <span>{% include 'includes/svg/email.html' %} {{ profile.email }}</span>
-          {% endif %}
-          {% if profile.github %}
-          <span>{% include 'includes/svg/github.html' %} <a href="{{ profile.github }}" target="_blank">GitHub</a></span>
-          {% endif %}
-          {% if profile.linkedin %}
-          <span>{% include 'includes/svg/phone.html' %} <a href="{{ profile.linkedin }}" target="_blank">LinkedIn</a></span>
-          {% endif %}
-          {% if profile.website %}
-          <span><a href="{{ profile.website }}" target="_blank">Website</a></span>
-          {% endif %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-info">
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="Аватар" class="profile-avatar">
+            {% else %}
+                <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="profile-avatar">
+            {% endif %}
+            <div class="profile-details">
+                <h2 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h2>
+                <p class="profile-description">
+                    {{ user.description|default:"Описание профиля пока не добавлено." }}
+                </p>
+                <div class="profile-contacts">
+                    {% if user.email %}
+                    <span>{% include 'includes/svg/email.html' %} {{ user.email }}</span>
+                    {% endif %}
+                    {% if user.phone %}
+                    <span>{% include 'includes/svg/phone.html' %} {{ user.phone }}</span>
+                    {% endif %}
+                    {% if user.github %}
+                    <span>{% include 'includes/svg/github.html' %}
+                        <a href="{{ user.github }}" target="_blank">GitHub</a>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="pf-actions">
-      <a href="#" class="pf-btn-dark pf-btn-share pf-share-btn" data-url="{% url 'profile-detail' profile.id %}">
-        {% include 'includes/svg/share.html' %}
-      </a>
-      {% if request.user == profile %}
-      <a href="{% url 'account-edit' %}" class="pf-btn-dark">
-        {% include 'includes/svg/pen.html' %} Edit
-      </a>
-      {% endif %}
-    </div>
-  </div>
-
-  {% if profile.skills %}
-  <div class="pf-skills-box" style="border:1px solid #ddd;border-radius:12px;padding:20px;margin-bottom:20px;background:white;">
-    <h3 style="margin:0;">Skills</h3>
-    <div class="pf-skills" style="margin-top:12px;">
-      {% for s in profile.skills %}
-      <span class="pf-skill">{{ s }}</span>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-
-  <h3>Projects ({{ profile.projects.count }})</h3>
-  <div class="pf-mini-grid">
-    {% for p in profile.projects.all %}
-    <div class="pf-mini-card">
-      <div class="pf-mini-card-top">
-        <h4><a href="{% url 'project-detail' p.id %}">{{ p.title }}</a></h4>
-        <span class="pf-badge-dark">{{ p.get_status_display }}</span>
-      </div>
-      <div class="pf-mini-card-body">
-        <p>{{ p.description|truncatechars:150 }}</p>
-        <div class="pf-mini-card-foot">
-          <small class="pf-date">{{ p.created_at|date:"M d, Y" }}</small>
-          <span class="pf-count">{% include 'includes/svg/participants.html' %}{{ p.participants.count }}</span>
+        <div class="profile-actions">
+            <a href="#"
+               class="black-button black-button-share share-button"
+               data-url="/users/{{ user.id }}">
+                {% include 'includes/svg/share.html' %}
+            </a>
+            {% if request.user.id == user.id %}
+            <a href="/users/edit-profile" class="black-button">
+                {% include 'includes/svg/pen.html' %}
+                Редактировать
+            </a>
+            <a href="/projects/create-project" class="black-button">
+                {% include 'includes/svg/plus.html' %}
+                Добавить проект
+            </a>
+            {% endif %}
         </div>
-      </div>
     </div>
-    {% empty %}
-    <p>No projects yet</p>
-    {% endfor %}
-  </div>
+
+    <h3>Проекты ({{ user.projects.all|length }})</h3>
+
+    <div class="collapsed-project-grid">
+        {% for project in user.projects.all %}
+        <div class="collapsed-project-card">
+            <div class="collapsed-project-card-header">
+                <h4><a href="/projects/{{ project.id }}">{{ project.title }}</a></h4>
+                <span class="project-status-black">
+                    {% if project.status == "open" %}
+                        Открыт
+                    {% elif project.status == "closed" %}
+                        Закрыт
+                    {% else %}
+                        {{ project.status }}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="collapsed-project-card-body">
+                <div class="collapsed-project-card-description">
+                    <p class="project-card-description">{{ project.description|truncatechars:150 }}</p>
+                </div>
+                <div class="collapsed-project-card-footer">
+                    <p class="project-date">{{ project.pub_date|date:"d.m.Y" }}</p>
+                    {% with count=project.participants.count %}
+                    <div class="project-participants">
+                        {% include 'includes/svg/participants.html' %}
+                        {{ count }}
+                        {% if count|add:'-11'|divisibleby:100 or count|add:'-12'|divisibleby:100 or count|add:'-13'|divisibleby:100 or count|add:'-14'|divisibleby:100 %}
+                            участников
+                        {% elif count|add:'-1'|divisibleby:10 %}
+                            участник
+                        {% elif count|add:'-2'|divisibleby:10 or count|add:'-3'|divisibleby:10 or count|add:'-4'|divisibleby:10 %}
+                            участника
+                        {% else %}
+                            участников
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Пока нет проектов</p>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
+{% endwith %}

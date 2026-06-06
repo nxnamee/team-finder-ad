@@ -6,6 +6,12 @@ from django.contrib.auth import authenticate, get_user_model
 User = get_user_model()
 
 
+def _validate_github_url(value):
+    """Ensure the URL points to github.com."""
+    if value and "github.com" not in value.lower():
+        raise forms.ValidationError("Ссылка должна вести на github.com")
+
+
 class UserRegistrationForm(forms.ModelForm):
     """Registration form using model field names directly."""
 
@@ -68,6 +74,12 @@ class EmailAuthenticationForm(forms.Form):
 
 class ProfileEditForm(forms.ModelForm):
     """Edit user profile fields directly on the User model."""
+
+    github = forms.URLField(
+        label="GitHub",
+        required=False,
+        validators=[_validate_github_url],
+    )
 
     class Meta:
         model = User

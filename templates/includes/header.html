@@ -1,62 +1,69 @@
 {% load static %}
 
-<div id="sidebarOverlay" class="pf-drawer-overlay"></div>
-<header class="pf-header">
-  <div class="pf-shell">
-    <div class="pf-header-inner">
-      <a href="{% url 'project-list' %}" class="pf-logo">TeamFinder</a>
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+<header class="site-header">
+    <div class="container">
+        <div class="header-content">
+            <a href="/projects/list" class="logo-link">TeamFinder</a>
 
-      <nav class="pf-nav">
-        <a href="{% url 'project-list' %}" class="pf-nav-link">
-          {% include 'includes/svg/home.html' %}<p>Home</p>
-        </a>
-        <a href="{% url 'member-list' %}" class="pf-nav-link">
-          {% include 'includes/svg/participants.html' %}<p>Members</p>
-        </a>
-        {% if request.user.is_authenticated %}
-        <a href="{% url 'saved-projects' %}" class="pf-nav-link">
-          {% include 'includes/svg/heart.html' %}<p>Saved</p>
-        </a>
-        {% endif %}
-      </nav>
+            <nav class="main-nav">
+                <a href="/projects/list" class="nav-link">
+                    {% include 'includes/svg/home.html' %}
+                    <p>Главная</p>
+                </a>
+                <a href="/users/list" class="nav-link">
+                    {% include 'includes/svg/participants.html' %}
+                    <p>Участники</p>
+                </a>
+                {% if request.user.is_authenticated %}
+                <a href="/projects/favorites" class="nav-link">
+                    {% include 'includes/svg/heart.html' %}
+                    <p>Избранное</p>
+                </a>
+                {% endif %}
+            </nav>
 
-      <div class="pf-user-bar">
-        {% if request.user.is_authenticated %}
-        <a href="{% url 'project-create' %}" class="pf-nav-link pf-btn-dark">
-          {% include 'includes/svg/plus.html' %}<p>New</p>
-        </a>
-        <a class="pf-user-menu pf-nav-link">
-          {% if request.user.avatar %}
-          <img src="{{ request.user.avatar.url }}" alt="" class="pf-avatar-sm">
-          {% else %}
-          <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-avatar-sm">
-          {% endif %}
-          <span class="pf-user-name">{{ request.user.username }}</span>
-        </a>
-        {% else %}
-        <button class="pf-btn pf-nav-link" onclick="window.location.href='{% url 'signin' %}'">
-          {% include 'includes/svg/login.html' %}<p>Sign in</p>
-        </button>
-        <button class="pf-btn pf-nav-link pf-btn-dark" onclick="window.location.href='{% url 'signup' %}'">
-          {% include 'includes/svg/register.html' %}<p>Sign up</p>
-        </button>
-        {% endif %}
-      </div>
+            <div class="user-actions">
+                {% if request.user.is_authenticated %}
+                <a href="/projects/create-project" class="button nav-link black">
+                    {% include 'includes/svg/plus.html' %}
+                    <p>Создать проект</p>
+                </a>
+                <a class="user-menu nav-link">
+                    {% if request.user.avatar %}
+                        <img src="{{ request.user.avatar.url }}" alt="Аватар" class="avatar">
+                    {% else %}
+                        <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="avatar">
+                    {% endif %}
+                    <span class="username">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+                </a>
+                {% else %}
+                <button class="button button-login nav-link" onclick="window.location.href='/users/login/'">
+                    {% include 'includes/svg/login.html' %}
+                    <p>Войти</p>
+                </button>
+                <button class="button button-register nav-link black" onclick="window.location.href='/users/register/'">
+                    {% include 'includes/svg/register.html' %}
+                    <p>Регистрация</p>
+                </button>
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
 </header>
-
 {% if request.user.is_authenticated %}
-<div id="userSidebar" class="pf-drawer">
-  <div>
-    <a href="{% url 'profile-detail' request.user.id %}"><span>{% include 'includes/svg/profile.html' %} My Profile</span></a>
-    <a href="{% url 'account-edit' %}"><span>{% include 'includes/svg/settings.html' %} Edit Profile</span></a>
-    <a href="{% url 'password-change' %}"><span>{% include 'includes/svg/lock.html' %} Change Password</span></a>
-    <a href="#" class="pf-share-btn" data-url="{% url 'profile-detail' request.user.id %}">
-      {% include 'includes/svg/share.html' %} Share Profile
-    </a>
-    <hr class="pf-divider">
-    <a href="{% url 'signout' %}"><span style="color:#e7000b;">{% include 'includes/svg/leave.html' %} Sign out</span></a>
-  </div>
+<div id="userSidebar" class="user-sidebar">
+    <div class="sidebar-content">
+        <a href="/users/{{ request.user.id }}/"><span>{% include 'includes/svg/profile.html' %} Мой профиль</span></a>
+        <a href="/users/edit-profile/"><span>{% include 'includes/svg/settings.html' %} Редактировать профиль</span></a>
+        <a href="/users/change-password/"><span>{% include 'includes/svg/lock.html' %} Сменить пароль</span></a>
+        <a href="#"
+           class="share-button"
+           data-url="/users/{{ request.user.id }}">
+            {% include 'includes/svg/share.html' %} Поделиться профилем
+        </a>
+        <hr class="sidebar-divider">
+        <a href="/users/logout/"><span style="color: #e7000b;">{% include 'includes/svg/leave.html' %} Выйти</span></a>
+    </div>
 </div>
 {% endif %}

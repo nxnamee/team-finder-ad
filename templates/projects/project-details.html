@@ -7,90 +7,108 @@
 <link rel="stylesheet" href="{% static 'css/project_details.css' %}">
 {% endblock %}
 
+{% with page_id="project" %}
 {% block content %}
-<div class="pf-wrap-sm">
-  <div class="pf-card">
-    <div class="pf-card-top">
-      <a href="{% url 'profile-detail' project.author.id %}">
-        <div class="pf-card-top-left">
-          {% if project.author.avatar %}
-          <img src="{{ project.author.avatar.url }}" alt="" class="pf-author-pic">
-          {% else %}
-          <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-author-pic">
-          {% endif %}
-          <div class="pf-meta">
-            <span class="pf-author-name">{{ project.author.username }}</span>
-            <span class="pf-date">{{ project.created_at|date:"M d, Y" }}</span>
-          </div>
+<div class="project-container">
+    <div class="project-card">
+        <div class="project-card-header">
+            <a href="/users/{{ project.author.id }}">
+                <div class="project-card-header-left">
+                    {% if project.author.avatar %}
+                        <img src="{{ project.author.avatar.url }}" alt="Аватар автора" class="project-author-avatar">
+                    {% else %}
+                        <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="project-author-avatar">
+                    {% endif %}
+                    <div class="project-meta">
+                        <span class="project-author">{{ project.author.first_name }} {{ project.author.last_name }}</span>
+                        <span class="project-date">{{ project.pub_date|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+            </a>
+            <div class="project-card-header-right">
+                <span class="project-status-black">
+                    {% if project.status == "open" %}
+                        Открыт
+                    {% elif project.status == "closed" %}
+                        Закрыт
+                    {% else %}
+                        {{ project.status }}
+                    {% endif %}
+                </span>
+            </div>
         </div>
-      </a>
-      <div>
-        <span class="pf-badge-dark">{{ project.get_status_display }}</span>
-      </div>
-    </div>
 
-    <div class="pf-card-body">
-      <h2 class="pf-heading">{{ project.title }}</h2>
-      <p class="pf-desc">{{ project.description }}</p>
-    </div>
+        <div class="project-card-body">
+                <h2 class="project-title">{{ project.title }}</h2>
+                <p class="project-description">{{ project.description }}</p>
 
-    <div class="pf-actions">
-      <a href="#" class="pf-btn-dark pf-btn-share pf-share-btn" data-url="{% url 'project-detail' project.id %}">
-        {% include 'includes/svg/share.html' %}
-      </a>
-      {% if is_author %}
-      <a href="{% url 'project-edit' project.id %}" class="pf-btn-dark">
-        {% include 'includes/svg/pen.html' %} Edit
-      </a>
-      {% if project.status == 'active' %}
-      <button class="pf-btn-dark" id="close-listing-btn" data-id="{{ project.id }}">Close</button>
-      {% endif %}
-      {% else %}
-      {% if request.user.is_authenticated and project.status == 'active' %}
-      <button id="join-btn" class="pf-btn-dark"
-        data-project="{{ project.id }}"
-        data-user-id="{{ request.user.id }}"
-        data-user-name="{{ request.user.username }}"
-        data-user-avatar="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}">
-        {% if is_participant %}Leave{% else %}Join{% endif %}
-      </button>
-      {% endif %}
-      {% endif %}
-    </div>
-  </div>
-
-  {% if project.skills %}
-  <div class="pf-skills-box">
-    <h3>Skills</h3>
-    <div class="pf-skills">
-      {% for s in project.skills %}
-      <span class="pf-skill">{{ s }}</span>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="pf-roster-card">
-    <h3>Team (<span id="roster-count" style="display:inline">{{ project.memberships.count }}</span>)</h3>
-    <div id="roster-list" class="pf-roster">
-      {% for m in project.memberships.all %}
-      <a href="{% url 'profile-detail' m.user.id %}" id="member-{{ m.user.id }}">
-        <div class="pf-roster-item">
-          {% if m.user.avatar %}
-          <img src="{{ m.user.avatar.url }}" alt="" class="pf-avatar">
-          {% else %}
-          <img src="{% static 'images/default-avatar.png' %}" alt="" class="pf-avatar">
-          {% endif %}
-          <div class="pf-team-info">
-            <span class="pf-team-name">{{ m.user.username }}</span>
-            <span class="pf-team-role">{{ m.get_role_display }}</span>
-          </div>
+                {% if project.github %}
+                <p class="project-link">
+                    {% include 'includes/svg/github.html' %}
+                    <a href="{{ project.github }}" target="_blank">Репозиторий на GitHub</a>
+                </p>
+                {% endif %}
         </div>
-      </a>
-      {% empty %}
-      <p id="roster-empty">No members yet</p>
-      {% endfor %}
+        <div class="project-actions">
+            <a href="#"
+               class="black-button black-button-share share-button"
+               data-url="/projects/{{ project.id }}">
+                {% include 'includes/svg/share.html' %}
+            </a>
+            {% if user.id == project.author.id %}
+                <a href="/projects/{{ project.id }}/edit" class="black-button">
+                    {% include 'includes/svg/pen.html' %}
+                    Редактировать
+                </a>
+                {% if project.status == "open" %}
+                    <button class="black-button" id="complete-project-btn" data-id="{{ project.id }}">
+                        Завершить проект
+                    </button>
+                {% endif %}
+            {% else %}
+                {% if user.is_authenticated %}
+                    <button id="participate-btn" class="black-button"
+                            data-project="{{ project.id }}"
+                            data-user-id="{{ request.user.id }}"
+                            data-user-name="{{ request.user.first_name }} {{ request.user.last_name }}"
+                            data-user-avatar="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}"
+                    >
+                        {% if request.user in project.participants.all %}
+                            Отказаться от участия
+                        {% else %}
+                            Участвовать
+                        {% endif %}
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+
     </div>
-  </div>
+
+    <div class="project-participants-card">
+    <h3>Участники проекта (<span id="participants-count" style="display:inline">{{ project.participants.all|length }}</span>)</h3>
+    <div id="participants-list" class="participants-list">
+        {% for member in project.participants.all %}
+        <a href="/users/{{ member.id }}" id="participant-{{ member.id }}">
+            <div class="participant-item">
+                {% if member.avatar %}
+                    <img src="{{ member.avatar.url }}" alt="Аватар" class="participant-avatar">
+                {% else %}
+                    <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="participant-avatar">
+                {% endif %}
+                <div class="participant-info">
+                    <span class="participant-name">{{ member.first_name }} {{ member.last_name }}</span>
+                    <span class="participant-role">
+                        {% if member.id == project.author.id %}Автор проекта{% else %}Участник{% endif %}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <p id="no-participants">Пока нет участников</p>
+        {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}
+{% endwith %}

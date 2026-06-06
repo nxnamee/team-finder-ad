@@ -1,41 +1,40 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Saved Projects{% endblock %}
+{% block title %}Избранное{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/project_list.css' %}">
 {% endblock %}
 
+{% block page_id %}favorites{% endblock %}
 {% block content %}
-<div class="pf-wrap">
-  <div class="pf-bar">
-    <h1 class="pf-heading">Saved Projects</h1>
-  </div>
-  <p class="pf-sub">Projects you have bookmarked</p>
-
-  <div class="pf-grid">
-    {% for item in saved_items %}
-      {% include 'includes/project-card.html' with project=item.project %}
-    {% empty %}
-    <div class="pf-empty">
-      <h3>No saved projects</h3>
-      <p>Browse projects and save the ones you like</p>
-      <a href="{% url 'project-list' %}" class="pf-btn-dark" style="margin-top:12px;">Browse</a>
+<div class="project-container">
+    <div class="project-header">
+        <h2 class="project-title">Избранные проекты</h2>
     </div>
-    {% endfor %}
-  </div>
+    <p class="project-subtitle">Проекты, которые вас заинтересовали</p>
 
-  {% if is_paginated %}
-  <div class="pf-filter" style="margin-top:30px;text-align:center;">
-    {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}" class="pf-chip">Prev</a>
+    <div class="projects-grid">
+        {% for project in projects %}
+        {% include 'includes/project-card.html' %}
+        {% empty %}
+        {% include 'includes/empty-project-card.html' with empty_title="Пока нет избранных проектов" empty_message="Добавляйте проекты в избранное, чтобы не потерять их" button_link="/projects/list" button_text="Посмотреть проекты" %}
+        {% endfor %}
+    </div>
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+        {% endif %}
+        <span>Страница {{ page_obj.number }} из {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Вперед</a>
+        {% endif %}
+    </div>
     {% endif %}
-    <span style="margin:0 12px;font-size:14px;">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-    {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}" class="pf-chip">Next</a>
-    {% endif %}
-  </div>
-  {% endif %}
+
+    {% include 'includes/project-fav-toggle.js' %}
 </div>
+
 {% endblock %}
